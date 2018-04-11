@@ -14,7 +14,7 @@ enum EQuery {
     AUTHENTICATE, PATIENTS, STUDIES, DICOMS
 };
 
-public class EX implements ActionListener {
+public class Sample implements ActionListener {
     private Connection connection;
     EPage epage;
     JFrame jf;
