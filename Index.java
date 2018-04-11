@@ -1,6 +1,7 @@
 import java.awt.*;
 import javax.swing.*;
 import java.util.*;
+import java.util.List;
 import java.sql.*;
 import javax.swing.table.*;
 import java.lang.*;
@@ -38,11 +39,12 @@ enum EQuery {
     }
 };
 
-public class Index implements ActionListener {
+public class Index implements WindowListener, ActionListener {
     private Connection connection;
     List<JFrame> jfList = new ArrayList<JFrame>();
     private JTextField jtfUsername, jtfPassword;
     private JLabel jlError;
+    private Statement statement;
 
     public static void main(String[] args) {
         Index exobj = new Index();
@@ -60,7 +62,7 @@ public class Index implements ActionListener {
         try {
             connection = DriverManager.getConnection("jdbc:postgresql://127.0.0.1:5432/APR05", "postgres",
                     "1q2w3e4r5t");
-            connection.close();
+            statement = connection.createStatement();
         } catch (java.sql.SQLException e) {
             System.err.println(e);
             System.exit(-1);
@@ -77,7 +79,7 @@ public class Index implements ActionListener {
                 JFrame jf = new JFrame(gd.getDefaultConfiguration());
                 jf.setTitle("Patients");
                 jf.setExtendedState(JFrame.MAXIMIZED_BOTH);
-                jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                jf.addWindowListener(this);
                 Rectangle rect = gc[c].getBounds();
                 jf.setLocation(rect.x, rect.y);
                 if (d == 0) this.setSign(jf);
@@ -112,9 +114,6 @@ public class Index implements ActionListener {
     private DefaultTableModel getDefaultTableModel(String query) {
         DefaultTableModel dm = new DefaultTableModel();
         try {
-            connection = DriverManager.getConnection("jdbc:postgresql://127.0.0.1:5432/APR05", "postgres",
-                    "1q2w3e4r5t");
-            Statement statement = connection.createStatement();
             ResultSet rs = statement.executeQuery(query);
             ResultSetMetaData rsmd = rs.getMetaData();
             int cols = rsmd.getColumnCount();
@@ -129,7 +128,6 @@ public class Index implements ActionListener {
                     row[i] = rs.getString(i + 1);
                 dm.addRow(row);
             }
-            connection.close();
         } catch (java.sql.SQLException e) {
             System.err.println(e);
             System.exit(-1);
@@ -189,14 +187,10 @@ public class Index implements ActionListener {
     private boolean getAuthenticate(String query) {
         boolean auth = false;
         try {
-            connection = DriverManager.getConnection("jdbc:postgresql://127.0.0.1:5432/APR05", "postgres",
-                    "1q2w3e4r5t");
-            Statement statement = connection.createStatement();
             ResultSet rs = statement.executeQuery(query + " AND username = '" + jtfUsername.getText() + "'");
             String strPassword = "";
             while (rs.next())
                 strPassword = rs.getString("password");
-            connection.close();
             if (strPassword.length() > 0) {
                 BCrypt bcrypt = new BCrypt();
                 auth = bcrypt.checkpw(jtfPassword.getText(), strPassword);
@@ -206,5 +200,34 @@ public class Index implements ActionListener {
             System.exit(-1);
         }
         return auth;
+    }
+
+    public void windowClosing(WindowEvent e) {
+        try {
+            connection.close();
+        } catch (java.sql.SQLException sqle) {
+            System.err.println(sqle);
+            System.exit(-1);
+        }
+        //dispose();
+        System.exit(0);
+    }
+
+    public void windowOpened(WindowEvent e) {
+    }
+
+    public void windowActivated(WindowEvent e) {
+    }
+
+    public void windowIconified(WindowEvent e) {
+    }
+
+    public void windowDeiconified(WindowEvent e) {
+    }
+
+    public void windowDeactivated(WindowEvent e) {
+    }
+
+    public void windowClosed(WindowEvent e) {
     }
 }
