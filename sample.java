@@ -22,7 +22,7 @@ public class Sample implements ActionListener {
     private JLabel jlError;
 
     public static void main(String[] args) {
-        EX exobj = new EX();
+        Sample exobj = new Sample();
         exobj.checkDB();
         exobj.setFrame();
     }
