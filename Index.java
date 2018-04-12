@@ -6,6 +6,7 @@ import java.sql.*;
 import javax.swing.table.*;
 import java.lang.*;
 import java.awt.event.*;
+import javax.swing.border.*;
 
 enum EPageMode {
     SIGNIN, RECORDS, FORM, LOGOUT
@@ -136,20 +137,37 @@ public class Index implements WindowListener, ActionListener {
     }
 
     private void setSign(JFrame jf) {
-        JPanel jpSignin = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        JPanel jpSignin = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
         jpSignin.setPreferredSize(new Dimension(100, 300));
-        jpSignin.add(new JLabel("user name: "));
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridwidth = 1;
+        jpSignin.add(new JLabel("user name: "), gbc);
         jtfUsername = new JTextField(15);
         jtfPassword = new JPasswordField(15);
-        jpSignin.add(jtfUsername);
-        jpSignin.add(new JLabel("password: "));
-        jpSignin.add(jtfPassword);
+        gbc.gridx = 1;
+        gbc.gridy = 0;
+        gbc.gridwidth = 2;
+        jpSignin.add(jtfUsername, gbc);
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.gridwidth = 1;
+        jpSignin.add(new JLabel("password: "), gbc);
+        gbc.gridx = 1;
+        gbc.gridy = 1;
+        gbc.gridwidth = 2;
+        jpSignin.add(jtfPassword, gbc);
         JButton jbtnSubmit = new JButton("Login");
         jbtnSubmit.addActionListener(this);
         jbtnSubmit.setActionCommand(EPageMode.SIGNIN.toString());
-        jpSignin.add(jbtnSubmit);
+        gbc.gridx = 1;
+        gbc.gridy = 2;
+        gbc.gridwidth = 1;
+        jpSignin.add(jbtnSubmit, gbc);
         jlError = new JLabel("");
         jpSignin.add(jlError);
+        jpSignin.setBorder(new LineBorder(Color.GRAY));
         jf.getContentPane().add(jpSignin);
     }
 
