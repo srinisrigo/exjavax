@@ -77,7 +77,7 @@ public class Index implements WindowListener, ActionListener {
             GraphicsConfiguration[] gc = gd.getConfigurations();
             for (int c = 0; c < gc.length; c++) {
                 JFrame jf = new JFrame(gd.getDefaultConfiguration());
-                jf.setTitle("Patients");
+                jf.setTitle("Authenticate");
                 jf.setExtendedState(JFrame.MAXIMIZED_BOTH);
                 jf.addWindowListener(this);
                 Rectangle rect = gc[c].getBounds();
@@ -93,10 +93,10 @@ public class Index implements WindowListener, ActionListener {
         String querystr;
         switch (EQuery.valueOf(query)) {
         case PATIENTS:
-            querystr = "SELECT p.account_no, p.full_name, p.id as patient_id, p.phonogram_name, p.ideogram_name, p.birth_date::text, p.gender, '' as last_study_date, p.patient_info, nullif(p.patient_details->>'pat_comments', '') as pat_comments, p.stat, p.reception_dt, p.urgency, p.has_photo, p.photo_uploaded_dt, false as is_animal, p.reception_no, p.last_edit_dt FROM patients p";
+            querystr = "SELECT p.account_no, p.full_name, p.id as patient_id, p.phonogram_name, p.ideogram_name, p.birth_date::text, p.gender, '' as last_study_date, p.patient_info, nullif(p.patient_details->>'pat_comments', '') as pat_comments, p.stat, p.reception_dt, p.urgency, p.has_photo, p.photo_uploaded_dt, false as is_animal, p.reception_no, p.last_edit_dt FROM patients p ORDER BY p.id DESC";
             break;
         case STUDIES:
-            querystr = "select studies.id as study_id, studies.patient_id, studies.study_uid, '' as character_set, patients.account_no, patients.full_name, patients.phonogram_name, patients.ideogram_name, patients.birth_date::text, patients.gender,'' as last_study_date,patient_info->'owner_full_name' as owner_full_name, patient_info->'owner_phonogram_name' as owner_phonogram_name,patient_info->'owner_ideogram_name' as owner_ideogram_name, patient_info->'species' as species,patient_info->'bleed' as bleed, false as is_animal, studies.patient_age, studies.accession_no, studies.study_dt, studies.cpt_codes, studies.study_description, studies.orientation, studies.body_part, studies.modalities from studies inner join patients on studies.patient_id = patients.id and studies.no_of_instances > 0 and studies.no_of_series > 0 and study_details is not null";
+            querystr = "select studies.id as study_id, studies.patient_id, studies.study_uid, '' as character_set, patients.account_no, patients.full_name, patients.phonogram_name, patients.ideogram_name, patients.birth_date::text, patients.gender,'' as last_study_date,patient_info->'owner_full_name' as owner_full_name, patient_info->'owner_phonogram_name' as owner_phonogram_name,patient_info->'owner_ideogram_name' as owner_ideogram_name, patient_info->'species' as species,patient_info->'bleed' as bleed, false as is_animal, studies.patient_age, studies.accession_no, studies.study_dt, studies.cpt_codes, studies.study_description, studies.orientation, studies.body_part, studies.modalities from studies inner join patients on studies.patient_id = patients.id and studies.no_of_instances > 0 and studies.no_of_series > 0 and study_details is not null ORDER BY studies.id DESC";
             break;
         case DICOMS:
             querystr = "WITH max_ins AS (SELECT study_id , max(study_series_instances.id) AS max_ins_id FROM study_series_instances GROUP BY study_id),Study_status_UNR AS (SELECT status_desc FROM study_status WHERE status_code = 'UNR') SELECT studies.id as study_id, studies.patient_id, studies.study_uid, '' as character_set, patients.account_no, patients.full_name, patients.phonogram_name, patients.ideogram_name, patients.birth_date::text, patients.gender,'' as last_study_date,patient_info->'owner_full_name' as owner_full_name, patient_info->'owner_phonogram_name' as owner_phonogram_name,patient_info->'owner_ideogram_name' as owner_ideogram_name, patient_info->'species' as species,patient_info->'bleed' as bleed, false as is_animal, studies.patient_age, studies.accession_no, studies.study_dt, studies.cpt_codes, studies.study_description, studies.orientation, studies.body_part, studies.modalities, studies.study_details, studies.no_of_series, studies.no_of_instances FROM max_ins INNER JOIN studies ON studies.id = max_ins.study_id INNER JOIN patients ON (studies.patient_id = patients.id AND studies.no_of_instances > 0 AND studies.no_of_series > 0) order by studies.no_of_instances desc";
@@ -176,6 +176,8 @@ public class Index implements WindowListener, ActionListener {
             jf.getContentPane().removeAll();
             JTable jt = new JTable();
             jt.setModel(this.getDefaultTableModel(this.getQuery(EQuery.valueOf(f).toString())));
+            TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(jt.getModel());
+            jt.setRowSorter(sorter);
             JScrollPane sp = new JScrollPane(jt);
             jf.setTitle(EQuery.valueOf(f).toString());
             jf.getContentPane().add(sp);
