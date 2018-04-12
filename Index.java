@@ -8,7 +8,7 @@ import java.lang.*;
 import java.awt.event.*;
 
 enum EPageMode {
-    SIGNIN, RECORDS, FORM
+    SIGNIN, RECORDS, FORM, LOGOUT
 };
 
 enum EQuery {
@@ -150,7 +150,7 @@ public class Index implements WindowListener, ActionListener {
         jpSignin.add(jbtnSubmit);
         jlError = new JLabel("");
         jpSignin.add(jlError);
-        jf.add(jpSignin);
+        jf.getContentPane().add(jpSignin);
     }
 
     public void actionPerformed(ActionEvent ae) {
@@ -163,6 +163,9 @@ public class Index implements WindowListener, ActionListener {
                 jlError.setText("try again...");
         }
             break;
+        case LOGOUT:
+                this.showLogout();
+            break;
         case RECORDS:
         case FORM:
             break;
@@ -174,13 +177,25 @@ public class Index implements WindowListener, ActionListener {
         for (int f = 0; f < jfList.size(); f++) {
             jf = jfList.get(f);
             jf.getContentPane().removeAll();
+            JPanel jpTop = new JPanel(new FlowLayout(FlowLayout.RIGHT)),
+                    jpBottom = new JPanel(new FlowLayout(FlowLayout.CENTER)),
+                    jpContent = new JPanel(new BorderLayout(8, 8));
+            JButton jbtnLogout = new JButton("Log out");
+            jpTop.add(jbtnLogout);
+            jbtnLogout.addActionListener(this);
+            jbtnLogout.setActionCommand(EPageMode.LOGOUT.toString());
+            jpBottom.add(new JTextField("", 15));
+            jpBottom.add(new JButton("Search"));
             JTable jt = new JTable();
             jt.setModel(this.getDefaultTableModel(this.getQuery(EQuery.valueOf(f).toString())));
             TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(jt.getModel());
             jt.setRowSorter(sorter);
-            JScrollPane sp = new JScrollPane(jt);
+            JScrollPane jspTable = new JScrollPane(jt);
             jf.setTitle(EQuery.valueOf(f).toString());
-            jf.getContentPane().add(sp);
+            jpContent.add(jpTop, BorderLayout.NORTH);
+            jpContent.add(jspTable, BorderLayout.CENTER);
+            jpContent.add(jpBottom, BorderLayout.SOUTH);
+            jf.getContentPane().add(jpContent);
             jf.revalidate();
             jf.repaint();
         }
@@ -231,5 +246,17 @@ public class Index implements WindowListener, ActionListener {
     }
 
     public void windowClosed(WindowEvent e) {
+    }
+
+    private void showLogout() {
+        JFrame jf;
+        for (int f = 0; f < jfList.size(); f++) {
+            jf = jfList.get(f);
+            jf.setTitle("Authenticate");
+            jf.getContentPane().removeAll();
+            if (f == 0) this.setSign(jf);
+            jf.revalidate();
+            jf.repaint();
+        }
     }
 }
